@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>练习本 · 每日练习 + 打卡 + 错题本</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="app">
+    <header class="app-header">
+      <div class="header-left">
+        <div class="app-title">
+          <span class="title-icon">📚</span>
+          <span class="title-text">练习本</span>
+          <span class="title-badge">v2.0</span>
+        </div>
+        <div class="lang-info">
+          <span class="lang-icon">🌐</span>
+          <span id="selected-lang" class="lang-chip">EN</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <button id="btn-home" class="chip home-btn">
+          <span class="chip-icon">🏠</span>
+          <span class="chip-text">首页</span>
+        </button>
+        <button id="btn-lang" class="chip lang-btn">
+          <span class="chip-icon">🔄</span>
+          <span class="chip-text">切换语言</span>
+        </button>
+        <button id="btn-report" class="chip report-btn">
+          <span class="chip-icon">📊</span>
+          <span class="chip-text">周报</span>
+        </button>
+      </div>
+    </header>
+
+    <main id="view-container">
+      <!-- 首页 -->
+      <section id="view-home" class="view active">
+        <div class="card stat-row">
+          <div class="stat">
+            <div class="stat-icon">🔥</div>
+            <div class="stat-value" id="stat-streak">0</div>
+            <div class="stat-label">连续打卡(天)</div>
+          </div>
+          <div class="stat">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-value" id="stat-points">0</div>
+            <div class="stat-label">积分</div>
+          </div>
+          <div class="stat">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-value" id="stat-mastered">0</div>
+            <div class="stat-label" id="stat-mastered-label">掌握词汇</div>
+          </div>
+        </div>
+
+        <div class="card task-card">
+          <div class="task-header">
+            <div class="task-icon">📝</div>
+            <div class="task-title">今日任务</div>
+          </div>
+          <div class="task-subtitle">完成 5~10 题即可打卡</div>
+          <div class="progress">
+            <div id="progress-bar" class="progress-bar" style="width: 0%"></div>
+          </div>
+          <div class="task-actions">
+            <button id="btn-start" class="btn primary">
+              <span class="btn-icon">🚀</span>
+              <span class="btn-text">开始学习</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="card task-card">
+          <div class="task-header">
+            <div class="task-icon">🏆</div>
+            <div class="task-title">关卡通关</div>
+          </div>
+          <div class="task-subtitle">1000+关卡，按主题分类，难度循序渐进</div>
+          <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
+            <div class="pill">当前进度</div>
+            <div id="level-progress" class="muted">L1 基础入门</div>
+          </div>
+          <div class="task-actions">
+            <button id="btn-level-select" class="btn primary">
+              <span class="btn-icon">🎯</span>
+              <span class="btn-text">选择关卡</span>
+            </button>
+            <button id="btn-continue-level" class="btn">
+              <span class="btn-icon">⚡</span>
+              <span class="btn-text">继续挑战</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="card badges-card">
+          <div class="badges-header">
+            <div class="badges-icon">🏅</div>
+            <div class="badges-title">徽章 / 奖励</div>
+          </div>
+          <div id="badge-list" class="badges"></div>
+        </div>
+
+        <div class="card task-card">
+          <div class="task-header">
+            <div class="task-icon">📚</div>
+            <div class="task-title">每日10词打卡</div>
+          </div>
+          <div class="task-subtitle">每天自动抽取10个不同单词，可选择解释语言</div>
+          <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
+            <div class="pill">解释语言</div>
+            <select id="words-explain-lang" style="flex:1; padding:8px; border-radius:10px; border:2px solid #e5e7eb;">
+              <option value="CN">中文</option>
+              <option value="EN">English</option>
+              <option value="JA">日本語</option>
+              <option value="KR">한국어</option>
+            </select>
+          </div>
+          <div class="task-actions">
+            <button id="btn-start-words" class="btn primary">
+              <span class="btn-icon">📖</span>
+              <span class="btn-text">开始10词</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 学习页（答题） -->
+      <section id="view-learn" class="view">
+        <div class="card quiz-card">
+          <div class="quiz-header">
+            <div class="pill" id="quiz-progress">1/10</div>
+            <div class="pill" id="quiz-type">选择题</div>
+          </div>
+          <div class="quiz-content">
+            <div id="quiz-prompt" class="quiz-prompt">准备好开始啦！</div>
+            <button id="btn-tts" class="chip">🔊 朗读</button>
+            <button id="btn-fav" class="chip" style="display:none;">☆ 收藏</button>
+            <div id="quiz-options" class="quiz-options"></div>
+            <div id="quiz-input" class="quiz-input"></div>
+            <div id="quiz-pronounce" class="quiz-pronounce">
+              <button id="btn-speak" class="btn">🎤 开始录音</button>
+              <div id="speak-status" class="muted"></div>
+            </div>
+          </div>
+          <div id="quiz-feedback" class="quiz-feedback"></div>
+          <div class="quiz-actions">
+            <button id="btn-submit" class="btn primary">提交</button>
+            <button id="btn-next" class="btn" disabled>下一题</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 复习模式 -->
+      <section id="view-review" class="view">
+        <div class="card">
+          <div class="section-title">复习模式（错题再练 + 间隔复习）</div>
+          <div id="review-info" class="muted">系统将优先安排到期的错题</div>
+          <div class="task-actions">
+            <button id="btn-start-review" class="btn primary">开始复习</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 错题本 -->
+      <section id="view-wrong" class="view">
+        <div class="card">
+          <div class="section-title">错题本</div>
+          <div id="wrong-list" class="list"></div>
+        </div>
+      </section>
+
+      <!-- 数据页 -->
+      <section id="view-stats" class="view">
+        <div class="card">
+          <div class="section-title">学习数据</div>
+          <div id="stats-summary" class="stats-summary"></div>
+          <canvas id="chart" width="340" height="160"></canvas>
+        </div>
+      </section>
+
+      <!-- 每日10词：学习先行页 -->
+      <section id="view-words-study" class="view">
+        <div class="card">
+          <div class="section-title">今日10词（先学习再测验）</div>
+          <div id="words-list" class="list"></div>
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:8px;">
+            <button id="btn-words-prev" class="btn">上一页</button>
+            <div class="pill" id="words-page-indicator">1/10</div>
+            <button id="btn-words-next" class="btn">下一页</button>
+          </div>
+          <div class="task-actions" style="margin-top:10px;">
+            <button id="btn-start-words-quiz" class="btn primary">开始测验</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 每日10词：测验汇总页 -->
+      <section id="view-words-summary" class="view">
+        <div class="card">
+          <div class="section-title">今日10词汇总</div>
+          <div id="words-summary-list" class="list"></div>
+          <div class="task-actions" style="margin-top:10px;">
+            <button id="btn-summary-home" class="btn">返回首页</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 关卡选择页 -->
+      <section id="view-level-select" class="view">
+        <div class="card">
+          <div class="section-title">选择关卡主题</div>
+          <div id="theme-grid" class="theme-grid"></div>
+        </div>
+      </section>
+
+      <!-- 主题关卡列表页 -->
+      <section id="view-theme-levels" class="view">
+        <div class="card">
+          <div class="section-title" id="theme-title">主题关卡</div>
+          <div id="levels-grid" class="levels-grid"></div>
+          <div class="task-actions" style="margin-top:10px;">
+            <button id="btn-back-themes" class="btn">返回主题</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="tabbar">
+      <button data-view="home" class="tab active">
+        <span class="tab-icon">🏠</span>
+        <span class="tab-text">首页</span>
+      </button>
+      <button data-view="learn" class="tab">
+        <span class="tab-icon">📚</span>
+        <span class="tab-text">学习</span>
+      </button>
+      <button data-view="review" class="tab">
+        <span class="tab-icon">🔄</span>
+        <span class="tab-text">复习</span>
+      </button>
+      <button data-view="wrong" class="tab">
+        <span class="tab-icon">📝</span>
+        <span class="tab-text">错题本</span>
+      </button>
+      <button data-view="stats" class="tab">
+        <span class="tab-icon">📊</span>
+        <span class="tab-text">统计</span>
+      </button>
+    </nav>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
+
+
